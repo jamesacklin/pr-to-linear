@@ -1,24 +1,34 @@
 name: Linear GraphQL Mutation
 
-on: workflow_dispatch
+on:
+  pull_request:
+    types:
+      - closed
 
 ## TODO: create a step that parses the PR comments, finds the Linear bot, and extracts the issue ID
 ## TODO: use the issue ID as a target when updating the label
 ## TODO: create a "Next Release" label and hard-code the UUID here
 
 jobs:
-  linear-mutation:
+  if_merged:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
+    env:
+      PR_NUMBER: ${{ github.event.number }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set issue labels
-        run: |
-          label_uuid="9d52286c-6256-42b4-bf41-ebf3b1f8b5ff"
-          curl -X POST \
-            -H "Authorization: ${{ secrets.LINEAR_ACCESS_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"query\": \"mutation IssueAddLabel { issueAddLabel( id: \\\"LAND-420\\\", labelId: \\\"$label_uuid\\\" ) { success issue { id title state { id name } } } }\"}" \
-            https://api.linear.app/graphql
+      - name: Echo PR number
+        run: echo "PR number is $PR_NUMBER"
+
+      # - name: Set issue labels
+      #   run: |
+      #     label_uuid="9d52286c-6256-42b4-bf41-ebf3b1f8b5ff"
+      #     curl -X POST \
+      #       -H "Authorization: ${{ secrets.LINEAR_ACCESS_TOKEN }}" \
+      #       -H "Content-Type: application/json" \
+      #       -d "{\"query\": \"mutation IssueAddLabel { issueAddLabel( id: \\\"LAND-420\\\", labelId: \\\"$label_uuid\\\" ) { success issue { id title state { id name } } } }\"}" \
+      #       https://api.linear.app/graphql
