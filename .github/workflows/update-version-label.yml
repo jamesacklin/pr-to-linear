@@ -7,39 +7,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install jq
-        run: sudo apt-get install -y jq
-
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get Linear access token
-        id: get_linear_token
-        run: echo "::set-output name=token::${{ secrets.LINEAR_ACCESS_TOKEN }}"
-
-      - name: Get issue labels
-        id: get_issue_labels
-        run: |
-          access_token="$INPUT_LINEAR_ACCESS_TOKEN"
-          labels=$(curl -X POST \
-            -H "Authorization: $access_token" \
-            -H "Content-Type: application/json" \
-            -d '{"query": "query GetIssueLabels { issue(id: \"LAND-420\") { labels { nodes { id name } } } }"}' \
-            https://api.linear.app/graphql)
-          echo "::set-output name=labels::$labels"
-        env:
-          INPUT_LINEAR_ACCESS_TOKEN: ${{ steps.get_linear_token.outputs.token }}
-
       - name: Set issue labels
         run: |
-          access_token="$INPUT_LINEAR_ACCESS_TOKEN"
-          current_labels="${{ steps.get_issue_labels.outputs.labels }}"
           label_uuid="9d52286c-6256-42b4-bf41-ebf3b1f8b5ff"
-          updated_labels=$(echo "$current_labels" | jq --arg label_uuid "$label_uuid" '.data.issue.labels += [{ id: $label_uuid }]')
           curl -X POST \
-            -H "Authorization: $access_token" \
+            -H "Authorization: ${{ secrets.LINEAR_ACCESS_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d "{\"query\": \"mutation IssueUpdate { issueUpdate( id: \\\"LAND-420\\\", input: { labelIds: [$updated_labels] } ) { success issue { id title state { id name } } } }\"}" \
+            -d "{\"query\": \"mutation IssueAddLabel { issueAddLabel( id: \\\"LAND-420\\\", labelId: \\\"$label_uuid\\\" ) { success issue { id title state { id name } } } }\"}" \
             https://api.linear.app/graphql
-        env:
-          INPUT_LINEAR_ACCESS_TOKEN: ${{ steps.get_linear_token.outputs.token }}
