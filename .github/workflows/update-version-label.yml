@@ -1,9 +1,6 @@
 name: Linear GraphQL Mutation
 
-on:
-  push:
-    branches:
-      - main
+on: workflow_dispatch
 
 jobs:
   linear-mutation:
