@@ -1,0 +1,29 @@
+name: Linear GraphQL Mutation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  linear-mutation:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Get Linear Access Token
+      id: get_linear_token
+      run: echo "::set-output name=token::${{ secrets.LINEAR_ACCESS_TOKEN }}"
+
+    - name: Execute Linear GraphQL Mutation
+      run: |
+        access_token="$INPUT_LINEAR_ACCESS_TOKEN"
+        curl -X POST \
+          -H "Authorization: Bearer $access_token" \
+          -H "Content-Type: application/json" \
+          -d '{"query": "mutation IssueUpdate { issueUpdate( id: \"BLA-123\", input: { title: \"New Issue Title\" stateId: \"NEW-STATE-ID\", } ) { success issue { id title state { id name } } } }"}' \
+          https://api.linear.app/graphql
+      env:
+        INPUT_LINEAR_ACCESS_TOKEN: ${{ steps.get_linear_token.outputs.token }}
