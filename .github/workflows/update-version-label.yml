@@ -14,18 +14,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Get associated Linear issue ID
-        run: |
-          issue_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments | jq -r '.[] | select(.user.login == "linear[bot]") | .body' | grep -oP 'ACK-\d+')
-          if [[ ! -z "$issue_id" ]]; then
-            echo "issue_id=$issue_id" >> $GITHUB_ENV
-          else
-            echo "Error: Issue ID not found."
-            exit 1
-          fi
-
       - name: Set issue labels
         run: |
+          issue_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments | jq -r '.[] | select(.user.login == "linear[bot]") | .body' | grep -oP 'ACK-\d+')
           label_uuid="ddb132fc-d732-49c1-99e7-c34dd0e09b51"
           curl -X POST \
             -H "Authorization: ${{ secrets.LINEAR_ACCESS_TOKEN }}" \
