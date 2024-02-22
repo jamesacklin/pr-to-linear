@@ -27,7 +27,7 @@ jobs:
       - name: Look for "Linear" author in PR comments and extract issue ID, which starts with "ACK-"
         run: |
           # Extract the issue ID from the PR comments
-          issue_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments | jq -r '.[] | select(.user.login == "linear") | .body' | grep -oP 'ACK-\d+')
+          issue_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments | jq -r '.[] | select(.user.login == "linear[bot]") | .body' | grep -oP 'ACK-\d+')
           echo "Issue ID is $issue_id"
           echo "::set-env name=ISSUE_ID::$issue_id"
 
