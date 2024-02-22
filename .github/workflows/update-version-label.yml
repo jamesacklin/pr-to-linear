@@ -2,6 +2,10 @@ name: Linear GraphQL Mutation
 
 on: workflow_dispatch
 
+## TODO: create a step that parses the PR comments, finds the Linear bot, and extracts the issue ID
+## TODO: use the issue ID as a target when updating the label
+## TODO: create a "Next Release" label and hard-code the UUID here
+
 jobs:
   linear-mutation:
     runs-on: ubuntu-latest
