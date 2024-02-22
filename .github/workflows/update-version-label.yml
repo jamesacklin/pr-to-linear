@@ -24,6 +24,13 @@ jobs:
       - name: Echo PR number
         run: echo "PR number is $PR_NUMBER"
 
+      - name: Look for "Linear" author in PR comments and extract issue ID, which starts with "ACK-"
+        run: |
+          # Extract the issue ID from the PR comments
+          issue_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments | jq -r '.[] | select(.user.login == "linear") | .body' | grep -oP 'ACK-\d+')
+          echo "Issue ID is $issue_id"
+          echo "::set-env name=ISSUE_ID::$issue_id"
+
       # - name: Set issue labels
       #   run: |
       #     label_uuid="9d52286c-6256-42b4-bf41-ebf3b1f8b5ff"
